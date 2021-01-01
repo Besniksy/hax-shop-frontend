@@ -1,0 +1,26 @@
+[
+  {
+    "id": "1",
+    "image": "/assets/images/hero-slider/hero-slider-one/1.jpg",
+    "subtitle": "WATCHES",
+    "url": "/shop/left-sidebar"
+  },
+  {
+    "id": "2",
+    "image": "/assets/images/hero-slider/hero-slider-one/2.jpg",
+    "subtitle": "SUNGLASSES",
+    "url": "/shop/left-sidebar"
+  },
+  {
+    "id": "3",
+    "image": "/assets/images/hero-slider/hero-slider-one/3.jpg",
+    "subtitle": "GLASSES",
+    "url": "/shop/left-sidebar"
+  },
+  {
+    "id": "4",
+    "image": "/assets/images/hero-slider/hero-slider-one/4.jpg",
+    "subtitle": "BRACELETS",
+    "url": "/shop/left-sidebar"
+  }
+]

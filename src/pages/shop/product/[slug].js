@@ -1,0 +1,218 @@
+import { useEffect, useState } from "react";
+import Link from "next/link";
+import { Container, Row, Col } from "react-bootstrap";
+import { connect, useDispatch, useSelector } from "react-redux";
+import { useToasts } from "react-toast-notifications";
+import { LayoutTwo } from "../../../components/Layout";
+import { getDiscountPrice } from "../../../lib/product";
+import { BreadcrumbOne } from "../../../components/Breadcrumb";
+import {
+  ImageGalleryBottomThumb,
+  ProductDescription,
+  ProductDescriptionTab
+} from "../../../components/ProductDetails";
+import { addToCart } from "../../../redux/actions/cartActions";
+import {
+  addToWishlist,
+  deleteFromWishlist
+} from "../../../redux/actions/wishlistActions";
+import {
+  addToCompare,
+  deleteFromCompare
+} from "../../../redux/actions/compareActions";
+import products from "../../../data/products.json";
+// import productss from '../products'
+import axiosInstance from "../../../helpers/axios";
+import { useRouter } from "next/router";
+import { getProductsBySlug } from '../../../redux/actions'
+
+const ProductBasic = ({
+  product,
+  cartItems,
+  wishlistItems,
+  compareItems,
+  addToCart,
+  addToWishlist,
+  deleteFromWishlist,
+  addToCompare,
+  deleteFromCompare
+}) => {
+
+
+  useEffect(() => {
+    document.querySelector("body").classList.remove("overflow-hidden");
+  });
+  
+
+  const { addToast } = useToasts();
+  const discountedPrice = getDiscountPrice(
+    product.price,
+    product.discount
+  ).toFixed(2);
+
+  const productPrice = product.price.toFixed(2);
+  const cartItem = cartItems.filter(
+    (cartItem) => cartItem.id === product.id
+  )[0];
+  const wishlistItem = wishlistItems.filter(
+    (wishlistItem) => wishlistItem.id === product.id
+  )[0];
+  const compareItem = compareItems.filter(
+    (compareItem) => compareItem.id === product.id
+  )[0];
+
+  return (
+    <LayoutTwo>
+     
+      {/* <BreadcrumbOne
+        pageTitle={product.name}
+        backgroundImage="/assets/images/backgrounds/breadcrumb-bg-1.png"
+      >
+        <ul className="breadcrumb__list">
+          <li>
+            <Link href="/" as={process.env.PUBLIC_URL + "/"}>
+              <a>Home</a>
+            </Link>
+          </li>
+          <li>
+            <Link
+              href="/shop/left-sidebar"
+              as={process.env.PUBLIC_URL + "/shop/left-sidebar"}
+            >
+              <a>Shop</a>
+            </Link>
+          </li>
+          <li>{product.name}</li>
+        </ul>
+      </BreadcrumbOne> */}
+
+      
+      <div className="product-details space-mt--r100 space-mb--r100">
+        <Container>
+          <Row>
+            <Col lg={6} className="space-mb-mobile-only--50">
+              
+              <ImageGalleryBottomThumb
+                product={product}
+                wishlistItem={wishlistItem}
+                addToast={addToast}
+                addToWishlist={addToWishlist}
+                deleteFromWishlist={deleteFromWishlist}
+              />
+            </Col>
+
+            <Col lg={6}>
+             
+              <ProductDescription
+                product={product}
+                productPrice={productPrice}
+                discountedPrice={discountedPrice}
+                cartItems={cartItems}
+                cartItem={cartItem}
+                wishlistItem={wishlistItem}
+                compareItem={compareItem}
+                addToast={addToast}
+                addToCart={addToCart}
+                addToWishlist={addToWishlist}
+                deleteFromWishlist={deleteFromWishlist}
+                addToCompare={addToCompare}
+                deleteFromCompare={deleteFromCompare}
+              />
+            </Col>
+          </Row>
+          {/* <Row>
+            <Col>
+              
+              <ProductDescriptionTab product={product} />
+            </Col>
+          </Row> */}
+        </Container>
+      </div>
+    </LayoutTwo>
+  );
+};
+
+const mapStateToProps = (state) => {
+  return {
+    cartItems: state.cartData,
+    wishlistItems: state.wishlistData,
+    compareItems: state.compareData
+  };
+};
+
+const mapDispatchToProps = (dispatch) => {
+  return {
+    addToCart: (
+      item,
+      addToast,
+      quantityCount,
+      selectedProductColor,
+      selectedProductSize
+    ) => {
+      dispatch(
+        addToCart(
+          item,
+          addToast,
+          quantityCount,
+          selectedProductColor,
+          selectedProductSize
+        )
+      );
+    },
+    addToWishlist: (item, addToast) => {
+      dispatch(addToWishlist(item, addToast));
+    },
+    deleteFromWishlist: (item, addToast) => {
+      dispatch(deleteFromWishlist(item, addToast));
+    },
+    addToCompare: (item, addToast) => {
+      dispatch(addToCompare(item, addToast));
+    },
+    deleteFromCompare: (item, addToast) => {
+      dispatch(deleteFromCompare(item, addToast));
+    }
+  };
+};
+
+export default connect(mapStateToProps, mapDispatchToProps)(ProductBasic);
+
+export async function getStaticPaths() {
+
+  const productss = await axiosInstance.post(`/initialData`)
+  .then((response) => response.data.products)
+  .catch(error => {
+    console.log(error)
+  })
+console.log(productss)
+
+
+
+  // get the paths we want to pre render based on products
+
+  const paths =  productss.map((product) => ({
+    params: { slug: product.slug }
+  }));
+
+  return { paths, fallback: false };
+}
+
+export async function getStaticProps({ params}) {
+
+  try {
+    const productss = await axiosInstance.post(`/initialData`)
+    .then((response) => response.data.products)
+    const product = productss.filter((single) => single.slug === params.slug)[0];
+    return { props: { product } };
+
+  }
+
+  catch(error){
+    return {
+      props: null
+    }
+  }
+  
+  // get product data based on slug
+
+
+}
